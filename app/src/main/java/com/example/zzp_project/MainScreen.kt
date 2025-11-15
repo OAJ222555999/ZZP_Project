@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -63,6 +64,7 @@ fun MapScreen() {
 
 
     )
+    var searchResults by remember { mutableStateOf(listOf<String>()) }
 
 
     val density = LocalDensity.current
@@ -76,10 +78,18 @@ fun MapScreen() {
     val currentIndex = keys.indexOf(selectedMap)
     var searchNumber by rememberSaveable { mutableStateOf("") }
 
-
+    var search by remember { mutableStateOf(false) }
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
+
+
+
+
+
+
+
+
     Scaffold(
         containerColor = Color.White,
         bottomBar = {
@@ -158,22 +168,26 @@ fun MapScreen() {
                             .clipToBounds()
                     ) {
 
-                        val grenadePositions = getGrenadePositions(selectedMap)
-                        grenadePositions.forEach { (position, route) ->
+                        if(search==true){
+                            val grenadePositions = getGrenadePositions(searchNumber)
+                            grenadePositions.forEach { (position, route) ->
+                                selectedMap=route
 
-                            val offsetX = with(density) { (position.first * imageSize.width).toDp() }
-                            val offsetY = with(density) { (position.second * imageSize.height).toDp() }
-                            Box(
-                                modifier = Modifier
-                                    .offset(offsetX, offsetY)
-                                    .size(15.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.Red)
-                                    .clickable {  },
-                                contentAlignment = Alignment.Center
-                            ) {
+                                val offsetX = with(density) { (position.first * imageSize.width).toDp() }
+                                val offsetY = with(density) { (position.second * imageSize.height).toDp() }
+                                Box(
+                                    modifier = Modifier
+                                        .offset(offsetX, offsetY)
+                                        .size(7.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.Red)
+                                        .clickable {  },
+                                    contentAlignment = Alignment.Center
+                                ) {
 
 
+                                }
+                                search==false
                             }
                         }
                     }
@@ -250,39 +264,77 @@ fun MapScreen() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    // --- POLE TEKSTOWE ---
-                    TextField(
-                        value = searchNumber,
-                        onValueChange = { searchNumber = it },
-                        placeholder = { Text("Wpisz numer sali...", color = Color.Gray) },
-                        singleLine = true,
+                    Column {
+                        // --- POLE TEKSTOWE ---
+                        TextField(
+                            value = searchNumber,
+                            onValueChange = { input ->
+                                searchNumber = input
+                                searchResults = if (input.isNotEmpty()) {
+                                    ALL_WEITI_ROOMS.filter { it.contains(input, ignoreCase = true) }
+                                } else {
+                                    emptyList()
+                                }
+                            },
+                            placeholder = { Text("Wpisz numer sali...", color = Color.Gray) },
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
 
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(55.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                    )
+                                .height(75.dp)
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                            ,
+                            // Poprawny kod dla OutlinedTextField
+                            colors = OutlinedTextFieldDefaults.colors(
+                                // Kolor tła pola tekstowego
+                                focusedContainerColor = Color(0xFF2E2E2E),
+                                unfocusedContainerColor = Color(0xFF2E2E2E),
+                                disabledContainerColor = Color(0xFF2E2E2E),
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                                // Kolor tekstu w środku
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
 
-                    // --- PRZYCISK Z IKONĄ SZUKANIA ---
-                    Button(
-                        onClick = {
+                                // Kolor kursora
+                                cursorColor = Color.White,
 
-                        },
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2E2E2E)
-                        ),
-                        modifier = Modifier.size(55.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Szukaj",
-                            tint = Color.White,
-                            modifier = Modifier.scale(3f)
+                                // Kolor obramowania (indicator)
+                                focusedBorderColor = Color.Transparent,  // Ustawiasz kolor obramowania, gdy pole jest aktywne
+                                unfocusedBorderColor = Color.Transparent // Ustawiasz kolor obramowania, gdy pole nie jest aktywne
+                            )
+
                         )
+                        if (searchResults.isNotEmpty()) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp)
+                                .background(Color(0xFF2E2E2E))
+                                .padding(8.dp)
+                        ) {
+                            items(searchResults.size) { index ->
+                                val room = searchResults[index]
+                                Text(
+                                    text = room,
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            searchNumber = room // wpisanie do pola tekstowego
+                                            searchResults = emptyList() // ukrycie listy
+                                            search = true
+                                        }
+                                        .padding(8.dp)
+                                )
+                            }
+                        }
                     }
+                    }
+
+
+
                 }
 
             }
@@ -350,65 +402,6 @@ fun MapScreen() {
 }
 
 
-
-fun getGrenadePositions(map: String): List<Pair<Pair<Float, Float>, String>> {
-    return when ("$map") {
-
-        "Ancient-F" -> listOf(
-            (0.108f to 0.077f) to "grenade_detail/Ancient/CT/Flash1",
-
-            )
-
-        "Ancient-S" -> listOf(
-            (0.44f to 0.835f) to "grenade_detail/Ancient/T/Smoke1",
-            (0.44f to 0.802f) to "grenade_detail/Ancient/T/Smoke2",
-
-            (0.41f to 0.844f) to "grenade_detail/Ancient/T/Smoke3",
-            (0.425f to 0.885f) to "grenade_detail/Ancient/T/Smoke4",
-
-            (0.497f to 0.83f) to "grenade_detail/Ancient/T/Smoke5",
-            (0.496f to 0.8f) to "grenade_detail/Ancient/T/Smoke6",
-
-            (0.31f to 0.67f) to "grenade_detail/Ancient/T/Smoke7",
-            (0.345f to 0.69f) to "grenade_detail/Ancient/T/Smoke8",
-            (0.325f to 0.72f) to "grenade_detail/Ancient/T/Smoke9",
-            (0.33f to 0.625f) to "grenade_detail/Ancient/T/Smoke10",
-
-            (0.157f to 0.607f) to "grenade_detail/Ancient/T/Smoke11",
-            (0.195f to 0.57f) to "grenade_detail/Ancient/T/Smoke12",
-
-            (0.18f to 0.355f) to "grenade_detail/Ancient/T/Smoke13",
-
-            (0.512f to 0.58f) to "grenade_detail/Ancient/T/Smoke14",
-            (0.395f to 0.573f) to "grenade_detail/Ancient/T/Smoke15",
-            (0.375f to 0.46f) to "grenade_detail/Ancient/T/Smoke16",
-
-            (0.714f to 0.743f) to "grenade_detail/Ancient/T/Smoke17",
-            (0.806f to 0.705f) to "grenade_detail/Ancient/T/Smoke18",
-            (0.78f to 0.687f) to "grenade_detail/Ancient/T/Smoke19",
-
-            (0.77f to 0.605f) to "grenade_detail/Ancient/T/Smoke20",
-            (0.662f to 0.587f) to "grenade_detail/Ancient/T/Smoke21",
-
-            )
-
-        "Ancient-M" -> listOf(
-            (0.142f to 0.088f) to "grenade_detail/Ancient/CT/Molotov1",
-
-            )
-
-        "Mirage-M" -> listOf(
-            (0.170f to 0.180f) to "grenade_detail/Mirage/CT/Molotov1",
-
-            )
-
-        "Mirage-S" -> listOf(
-            (0.270f to 0.380f) to "grenade_detail/Mirage/T/Smoke1",
-
-            )
-        else -> emptyList()
-    }
-}
 
 
 

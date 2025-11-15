@@ -37,3 +37,8 @@ fun MyApp() {
         }
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    MyApp()
+}
