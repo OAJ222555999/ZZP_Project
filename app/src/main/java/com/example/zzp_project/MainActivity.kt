@@ -31,7 +31,7 @@ fun MyApp() {
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.Black // Change this to any color
+            color = Color.White // Change this to any color
         ) {
             MapScreen()
         }

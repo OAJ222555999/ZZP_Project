@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,40 +52,43 @@ import kotlin.math.roundToInt
 @Composable
 fun MapScreen() {
     val maps = mapOf(
-        "Ancient" to R.drawable.ancient_radar,
-        "Anubis" to R.drawable.anubis_radar,
-        "Dust2" to R.drawable.dust2_radar,
-        "Inferno" to R.drawable.inferno_radar,
-        "Mirage" to R.drawable.mirage_radar,
-        "Nuke" to R.drawable.nuke_radar,
-        "Train" to R.drawable.train_radar
+        "Piwnica" to R.drawable.piwnica,
+        "Parter" to R.drawable.parter_00,
+        "Pietro_1" to R.drawable.pietro_01,
+        "Pietro_2" to R.drawable.pietro_02,
+        "Pietro_3" to R.drawable.pietro_03,
+        "Pietro_4" to R.drawable.pietro_04,
+        "Pietro_5" to R.drawable.pietro_05,
+        "Dach" to R.drawable.dach_06
+
+
     )
 
-    val grenadeIcons = mapOf(
-        "F" to R.drawable.flash,
-        "S" to R.drawable.smoke,
-        "N" to R.drawable.nade,
-        "M" to R.drawable.molotov
-    )
+
     val density = LocalDensity.current
     val context = LocalContext.current
 
-    var selectedMap by rememberSaveable { mutableStateOf("Ancient") }
-    var selectedTeam by rememberSaveable { mutableStateOf("T") }
-    var selectedThrowType by rememberSaveable { mutableStateOf("S") }
+    val keys = maps.keys.toList()              // lista pięter w kolejności mapy
+    var selectedMap by rememberSaveable {
+        mutableStateOf("Pietro_1")
+    }
+
+    val currentIndex = keys.indexOf(selectedMap)
+    var searchNumber by rememberSaveable { mutableStateOf("") }
+
 
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     Scaffold(
-        containerColor = Color.Black,
+        containerColor = Color.White,
         bottomBar = {
             Column(modifier = Modifier
-                .background(Color.Black)
+                .background(Color.White)
                 .navigationBarsPadding()
             ) {
 
-                
+
             }
         }
     ) {
@@ -154,7 +158,7 @@ fun MapScreen() {
                             .clipToBounds()
                     ) {
 
-                        val grenadePositions = getGrenadePositions(selectedMap, selectedTeam, selectedThrowType)
+                        val grenadePositions = getGrenadePositions(selectedMap)
                         grenadePositions.forEach { (position, route) ->
 
                             val offsetX = with(density) { (position.first * imageSize.width).toDp() }
@@ -169,11 +173,7 @@ fun MapScreen() {
                                 contentAlignment = Alignment.Center
                             ) {
 
-                                Image(
-                                    painter = painterResource(id = grenadeIcons[selectedThrowType] ?: R.drawable.flash),
-                                    contentDescription = "Grenade",
-                                    modifier = Modifier.size(30.dp)
-                                )
+
                             }
                         }
                     }
@@ -241,86 +241,106 @@ fun MapScreen() {
 
             item {  Spacer(modifier = Modifier.height(20.dp))}
 
-            item{Row(modifier = Modifier.width(150.dp)) {
-                Button(
-                    onClick = { selectedTeam = "CT" },
-                    shape = RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedTeam == "CT") Color(0xFFd88b37) else Color(0xff222222)
-                    ),
-                    modifier = Modifier.weight(1f) // Każdy przycisk zajmuje równą część
-                ) { Text(text = "CT") }
 
-                Button(
-                    onClick = { selectedTeam = "T" },
-                    shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedTeam == "T") Color(0xFFd88b37) else Color(0xff222222)
-                    ),
-                    modifier = Modifier.weight(1f)
-                ) { Text(text = "T") }
-            }}
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-            // Przyciski dla granatów
+                    // --- POLE TEKSTOWE ---
+                    TextField(
+                        value = searchNumber,
+                        onValueChange = { searchNumber = it },
+                        placeholder = { Text("Wpisz numer sali...", color = Color.Gray) },
+                        singleLine = true,
 
-            item{Row(modifier = Modifier.padding(25.dp)) { // Zajmują więcej miejsca niż CT/T
-                listOf("F", "S", "M", "N").forEach { throwType ->
-                    Button(
-                        onClick = { selectedThrowType = throwType },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedThrowType == throwType) Color(0xFFd88b37) else Color(0xff222222)
-                        ),
-                        shape = when (throwType) {
-                            "F" -> RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp)
-                            "N" -> RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
-                            else -> RoundedCornerShape(0.dp)
-                        },
                         modifier = Modifier
                             .weight(1f)
-                            .padding(horizontal = 2.dp)
-                        ,
+                            .height(55.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
 
-                        ) {
-                        Image(
-                            painter = painterResource(id = grenadeIcons[throwType] ?: R.drawable.flash),
-                            contentDescription = "Grenade",
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                            modifier = Modifier
-                                .scale(1.5f)
-                                .height(30.dp)
+                    // --- PRZYCISK Z IKONĄ SZUKANIA ---
+                    Button(
+                        onClick = {
+
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF2E2E2E)
+                        ),
+                        modifier = Modifier.size(55.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Szukaj",
+                            tint = Color.White,
+                            modifier = Modifier.scale(3f)
                         )
                     }
                 }
-            }}
 
-            item{LazyRow (Modifier.padding(5.dp)){
-                maps.keys.forEach { mapName ->
-                    item {
-                        Button(
-                            onClick = { selectedMap = mapName },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selectedMap == mapName) Color(0xFFd88b37) else Color(0xff222222)
-                            ),
-                            shape = if (mapName == "Ancient") RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp)
-                            else if (mapName == "Train") RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
-                            else RoundedCornerShape(0.dp),
-                            modifier = Modifier.padding(horizontal = 1.dp)
-                        ) {
-                            val drawableId = context.resources.getIdentifier(
-                                "${mapName.lowercase()}_logo", "drawable", context.packageName
-                            )
+            }
 
-                            if (drawableId != 0) {
-                                Image(
-                                    painter = painterResource(id = drawableId),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(50.dp)
-                                )
-                            }
+            item {  Spacer(modifier = Modifier.height(20.dp))}
+
+
+
+
+            item{
+                Row(
+                    modifier = Modifier.padding(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    // --- PRZYCISK MINUS ---
+                    Button(
+                        onClick = { if (currentIndex > 0) {
+                            selectedMap = keys[currentIndex - 1]
                         }
+
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xff222222)),
+                        shape = RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp),
+                        modifier = Modifier.padding(horizontal = 2.dp)
+                    ) {
+                        Text("-", fontSize = 32.sp)
+                    }
+
+                    // --- NAZWA PIĘTRA ---
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFF000000), RoundedCornerShape(1.dp))
+                            .padding(horizontal = 20.dp, vertical = 15.dp)
+                    ) {
+                        Text(
+                            text = selectedMap,
+                            color = Color.White,
+                            fontSize = 20.sp
+                        )
+                    }
+
+                    // --- PRZYCISK PLUS ---
+                    Button(
+                        onClick = { if (currentIndex < keys.size - 1) {
+                            selectedMap = keys[currentIndex + 1]
+                        }
+
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xff222222)),
+                        shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp),
+                        modifier = Modifier.padding(horizontal = 2.dp)
+                    ) {
+                        Text("+", fontSize = 32.sp)
                     }
                 }
-            }}
+            }
+
             item {  Spacer(modifier = Modifier.height(120.dp))}
 
         }
@@ -331,18 +351,15 @@ fun MapScreen() {
 
 
 
-fun getGrenadePositions(map: String, team: String, throwType: String): List<Pair<Pair<Float, Float>, String>> {
-    return when ("$map-$team-$throwType") {
+fun getGrenadePositions(map: String): List<Pair<Pair<Float, Float>, String>> {
+    return when ("$map") {
 
-        "Ancient-CT-F" -> listOf(
+        "Ancient-F" -> listOf(
             (0.108f to 0.077f) to "grenade_detail/Ancient/CT/Flash1",
 
             )
-        "Ancient-T-F" -> listOf(
-            (0.064f to 0.151f) to "grenade_detail/Ancient/T/Flash1",
 
-            )
-        "Ancient-T-S" -> listOf(
+        "Ancient-S" -> listOf(
             (0.44f to 0.835f) to "grenade_detail/Ancient/T/Smoke1",
             (0.44f to 0.802f) to "grenade_detail/Ancient/T/Smoke2",
 
@@ -374,29 +391,18 @@ fun getGrenadePositions(map: String, team: String, throwType: String): List<Pair
             (0.662f to 0.587f) to "grenade_detail/Ancient/T/Smoke21",
 
             )
-        "Ancient-CT-S" -> listOf(
-            (0.51f to 0.08f) to "grenade_detail/Ancient/CT/Smoke1",
-            (0.545f to 0.17f) to "grenade_detail/Ancient/CT/Smoke2",
-            (0.769f to 0.227f) to "grenade_detail/Ancient/CT/Smoke3",
 
-            )
-        "Ancient-CT-M" -> listOf(
+        "Ancient-M" -> listOf(
             (0.142f to 0.088f) to "grenade_detail/Ancient/CT/Molotov1",
 
             )
-        "Ancient-T-M" -> listOf(
-            (0.047f to 0.109f) to "grenade_detail/Ancient/T/Molotov1",
 
-            )
-        "Mirage-CT-M" -> listOf(
+        "Mirage-M" -> listOf(
             (0.170f to 0.180f) to "grenade_detail/Mirage/CT/Molotov1",
 
             )
-        "Mirage-T-M" -> listOf(
-            (0.670f to 0.580f) to "grenade_detail/Mirage/T/Molotov1",
 
-            )
-        "Mirage-T-S" -> listOf(
+        "Mirage-S" -> listOf(
             (0.270f to 0.380f) to "grenade_detail/Mirage/T/Smoke1",
 
             )
