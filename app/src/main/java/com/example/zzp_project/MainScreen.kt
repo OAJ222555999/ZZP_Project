@@ -76,9 +76,9 @@ fun MapScreen() {
     }
 
     val currentIndex = keys.indexOf(selectedMap)
-    var searchNumber by rememberSaveable { mutableStateOf("") }
+    var searchNumber by rememberSaveable { mutableStateOf("") }//aby był widoczny punkt na podglądzie to tutaj value ustawić na nazwę sali
 
-    var search by remember { mutableStateOf(false) }
+    var search by remember { mutableStateOf(false) } //i tutaj dać true i można już edytować
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
@@ -168,7 +168,7 @@ fun MapScreen() {
                             .clipToBounds()
                     ) {
 
-                        if(search==true){
+                        if(search){
                             val grenadePositions = getGrenadePositions(searchNumber)
                             grenadePositions.forEach { (position, route) ->
                                 selectedMap=route
