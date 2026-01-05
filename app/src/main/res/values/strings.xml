@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">ZZP_Project</string>
+    <string name="floor_basement">Basement</string>
+    <string name="floor_ground">Ground floor</string>
+    <string name="floor_1">Floor 1</string>
+    <string name="floor_2">Floor 2</string>
+    <string name="floor_3">Floor 3</string>
+    <string name="floor_4">Floor 4</string>
+    <string name="floor_5">Floor 5</string>
+    <string name="floor_roof">Roof</string>
+    <string name='hint'>Enter the room number...</string>
 </resources>

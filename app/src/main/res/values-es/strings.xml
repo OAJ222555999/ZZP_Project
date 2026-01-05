@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ZZP_Project</string>
+    <string name="floor_1">Planta 1</string>
+    <string name="floor_2">Planta 2</string>
+    <string name="floor_3">Planta 3</string>
+    <string name="floor_4">Planta 4</string>
+    <string name="floor_5">Planta 5</string>
+    <string name="floor_roof">Azotea</string>
+    <string name="floor_basement">Planta 5</string>
+    <string name="floor_ground">Planta baja</string>
+    <string name="hint">Introduce el número de la sala…</string>
+</resources>

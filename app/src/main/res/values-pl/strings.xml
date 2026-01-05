@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ZZP_Project</string>
+    <string name="floor_basement">Piwnica</string>
+    <string name="floor_ground">Parter</string>
+    <string name="floor_1">Piętro 1</string>
+    <string name="floor_2">Piętro 2</string>
+    <string name="floor_3">Piętro 3</string>
+    <string name="floor_4">Piętro 4</string>
+    <string name="floor_5">Piętro 5</string>
+    <string name="floor_roof">Dach</string>
+    <string name="hint">Wpisz nazwę sali...</string>
+</resources>
